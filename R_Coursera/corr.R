@@ -23,23 +23,25 @@
 # should return a numeric vector of length 0. 
 
 corr <- function(directory, threshold = 0){
-        correlations <- numeric()
         
-        for(k in 1:332){
+        correlations <- numeric()
+        id = 1:332
+        
+        for(i in id){
                 # formatC(30, width=3, flag="0") --> ex. format as 008
-                path <- paste(directory, "/", formatC(k, width=3, flag="0"), ".csv", sep = "")
-                print(k)
-                print(path)
+                path <- file.path(directory, paste(formatC(i, width=3, flag="0"), ".csv", sep = ""))
                 csv_file_data <- read.csv(path)
                 
-                complete_cases_length <- length(csv_file_data$Date[which(!is.na(csv_file_data$sulfate) & !is.na(csv_file_data$nitrate))])
-                if(complete_cases_length > threshold){
-                        complete_case_sulfate <- csv_file_data$sulfate
-                        complete_case_nitrate <- csv_file_data$nitrate
-                        
-                        correlations <- c(corr(complete_case_sulfate, complete_case_nitrate), correlations)
+                complete_cases <- csv_file_data[!is.na(csv_file_data$sulfate) & !is.na(csv_file_data$nitrate), ]
+                # print(nrow(complete_cases))
+                if(nrow(complete_cases) > threshold){
+                        complete_case_sulfate <- complete_cases$sulfate
+                        complete_case_nitrate <- complete_cases$nitrate
+                        # print(complete_case_sulfate)
+                        # print(complete_case_nitrate)
+
+                        correlations <- c(cor(complete_case_nitrate, complete_case_sulfate), correlations)
                 }
-                k <- k+1
                 
         }
         

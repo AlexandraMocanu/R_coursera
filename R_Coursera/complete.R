@@ -27,7 +27,8 @@ complete <- function(directory, id = 1:332) {
                 # formatC(30, width=3, flag="0") --> ex. format as 008
                 csv_file_data <- read.csv(paste(directory, "/", formatC(i, width=3, flag="0"), ".csv", sep = ""))
                 complete_cases[k, "id"] <- i
-                complete_cases[k, "nobs"] <- length(csv_file_data$Date[which(!is.na(csv_file_data$sulfate) & !is.na(csv_file_data$nitrate))])
+                complete_cases_nb <- nrow(csv_file_data[!is.na(csv_file_data$sulfate) & !is.na(csv_file_data$nitrate), ])
+                complete_cases[k, "nobs"] <- complete_cases_nb
                 k <- k+1
         }
         complete_cases
