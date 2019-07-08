@@ -35,11 +35,16 @@ best <- function(state, outcome) {
   outcome_col <- outcomes_names[which(outcomes_names$in_n == outcome), ]
   outcome_char <- as.character(outcome_col[1, "out_n"])
   
+  # print(state)
+  # print(outcome_char)
+  
   ## Return hospital name in that state with lowest 30-day death rate
-  mins <- tapply(outcome_data[[outcome_char]], outcome_data$State, min, na.rm = TRUE)
-  min_value <- mins[state]
-  min_hospital <- outcome_data[which((outcome_data$State == state) & (outcome_data[[outcome_char]] == min_value)), ]
-  min_hospital <- sort(min_hospital[["Hospital.Name"]])
-  # min_hospital <- min_hospital[1, "Hospital.Name"]
-  min_hospital[1]
+  sub_data <- outcome_data[outcome_data[[ "State" ]] == state, c(outcome_char, "Hospital.Name")]
+  # print(sub_data)
+  min_val <- min(as.numeric(as.character(sub_data[[outcome_char]])), na.rm = TRUE)
+  # print(min_val)
+  min_hospital <- sub_data[as.numeric(as.character(sub_data[[outcome_char]])) == min_val, ]
+  min_hospital <- sort(min_hospital$Hospital.Name)
+  # print(min_hospital)
+  min_hospital
 }
