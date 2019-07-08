@@ -45,30 +45,32 @@ rankall <- function(outcome, num = "best") {
         mins <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, min)
         maxs <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, max)
         
+        hospitals <- list()
         for (state in states){
                 if (num == "best"){
                         min_s <- mins[state]
                         row <- ordered_subdata[which(ordered_subdata[["State"]] == state & ordered_subdata[[outcome_char]] == min_s), c("State", outcome_char, "Hospital.Name")]
-                        
-                        rlist::list.append(rank_hospital, "State" = as.character(row["State"]), outcome_char = as.character(row[outcome_char]), "Hospital.Name" = as.character(row["Hospital.Name"]))
+                        hospitals <- c(hospitals, as.character(row["Hospital.Name"]))
                 }
                 else if (num == "worst"){
                         max_s <- maxs[state]
-                        rank_hospital <- c(rank_hospital, ordered_subdata[which(
-                                ordered_subdata[["State"]] == state & ordered_subdata[[outcome_char]] == max_s), c("State", outcome_char, "Hospital.Name")])
+                        row <- ordered_subdata[which(ordered_subdata[["State"]] == state & ordered_subdata[[outcome_char]] == max_s), c("State", outcome_char, "Hospital.Name")]
+                        hospitals <- c(hospitals, as.character(row["Hospital.Name"]))
                 }
                 else if (num > length(unique(ordered_subdata[ordered_subdata[["State"]] == state, "Hospital.Name"]))){
                         rank_hospital <- NA
                         print(num)
                 }
                 else{
-                        rank_hospital <- c(rank_hospital, 
-                                           ordered_subdata[num, c("State", outcome_char, "Hospital.Name")])
+                        state_rows <- ordered_subdata[which(ordered_subdata[["State"]] == state), c("State", outcome_char, "Hospital.Name")]
+                        row <- state_rows[num, c("State", outcome_char, "Hospital.Name")]
+                        hospitals <- c(hospitals, as.character(row["Hospital.Name"]))
                 }
                 
                 
         }
         # as.data.frame(as.matrix(rank_hospital))
+        rank_hospital <- do.call(rbind.data.frame, Map('c', states, hospitals))
         rank_hospital
         
 }
