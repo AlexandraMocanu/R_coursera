@@ -34,17 +34,42 @@ rankall <- function(outcome, num = "best") {
         
         ## For each state, find the hospital of the given rank
         sub_data <- outcome_data[, c("State", outcome_char, "Hospital.Name")]
-        ordered_subdata <- sub_data[order(sub_data[["State"]], as.numeric(as.character(sub_data[[outcome_char]])), sub_data[["Hospital.Name"]]), ]
+        ordered_subdata <- sub_data[order(as.character(sub_data[["State"]]), as.numeric(as.character(sub_data[[outcome_char]])), as.character(sub_data[["Hospital.Name"]])), ]  ## subset and order
         ordered_subdata <- ordered_subdata[ordered_subdata[[outcome_char]] != 'Not Available', ]
         
         ## Return a data frame with the hospital names and the
         ## (abbreviated) state name
+        
+        # custom_order <- function(x) {
+        #         mins <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, min)
+        #         maxs <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, max)
+        #         
+        #         if (num == "best"){
+        #                 min_s <- mins[state]
+        #                 row <- ordered_subdata[which(ordered_subdata[["State"]] == state & ordered_subdata[[outcome_char]] == min_s), c("State", outcome_char, "Hospital.Name")]
+        #                 as.character(row["Hospital.Name"])
+        #         }
+        #         else if (num == "worst"){
+        #                 max_s <- maxs[state]
+        #                 row <- ordered_subdata[which(ordered_subdata[["State"]] == state & ordered_subdata[[outcome_char]] == max_s), c("State", outcome_char, "Hospital.Name")]
+        #                 as.character(row["Hospital.Name"])
+        #         }
+        #         else{
+        #                 state_rows <- ordered_subdata[which(ordered_subdata[["State"]] == state), c("State", outcome_char, "Hospital.Name")]
+        #                 row <- state_rows[num, c("State", outcome_char, "Hospital.Name")]
+        #                 as.character(row["Hospital.Name"])
+        #         }
+        # }
+        # 
+        # rank_hospitals <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, rankhospital)
+        # rank_hospitals
+        
         rank_hospital <- list("State" = character(), outcome_char = character(), "Hospital.Name" = character())
         states <- unique(ordered_subdata$State)
-        
+
         mins <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, min)
         maxs <- tapply(ordered_subdata[[outcome_char]], ordered_subdata$State, max)
-        
+        # 
         hospitals <- list()
         for (state in states){
                 if (num == "best"){
@@ -66,10 +91,12 @@ rankall <- function(outcome, num = "best") {
                         row <- state_rows[num, c("State", outcome_char, "Hospital.Name")]
                         hospitals <- c(hospitals, as.character(row["Hospital.Name"]))
                 }
-                
-                
+
+
         }
-        # as.data.frame(as.matrix(rank_hospital))
+        as.data.frame(as.matrix(rank_hospital))
+        
+        
         rank_hospital <- do.call(rbind.data.frame, Map('c', states, hospitals))
         rank_hospital
         
